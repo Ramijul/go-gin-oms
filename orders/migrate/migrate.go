@@ -22,7 +22,7 @@ func main() {
 	}
 
 	if session != nil {
-		log.Println("Database connected, inititing migration")
+		log.Println("Database connected, initiating migration")
 	}
 
 	//create/update tables
