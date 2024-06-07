@@ -1,7 +1,7 @@
 package userPackage
 
 import (
-	"log"
+	"net/http"
 
 	"github.com/Ramijul/go-gin-oms/orders/models"
 	"github.com/gin-gonic/gin"
@@ -19,11 +19,11 @@ func (c *Controller) GetAll(ctx *gin.Context) {
 	users, err := c.Service.GetAll()
 
 	if err != nil {
-		log.Fatal(err)
-		ctx.AbortWithStatus(500)
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
 
-	ctx.JSON(200, gin.H{
+	ctx.JSON(http.StatusOK, gin.H{
 		"users": users,
 	})
 }
