@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type OrderDetails struct {
+type OrderItem struct {
 	OrderID          uuid.UUID `gorm:"not null"`
 	Order            Order     `gorm:"primaryKey;foreignKey:OrderID;references:ID"`
 	ProductID        uuid.UUID `gorm:"not null"`

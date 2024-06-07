@@ -19,8 +19,6 @@ type Order struct {
 	ID                uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
 	TotalPrice        float64   `gorm:"not null;type:numeric(8,2)"`
 	PaymentReceivedAt time.Time
-	EstDeliveryDate   time.Time
-	DeliveredAt       time.Time
 	OrderStatus       string    `gorm:"not null"`
 	PaymentStatus     string    `gorm:"not null"`
 	UserID            uuid.UUID `gorm:"not null"`
@@ -29,4 +27,9 @@ type Order struct {
 	UserEmail         string    `gorm:"not null"`
 	UserPhoneNumber   string    `gorm:"not null"`
 	Address           Address   `gorm:"embedded;embeddedPrefix:addr_"`
+}
+
+type OrderWithItems struct {
+	Order
+	OrderItems []*OrderItem
 }

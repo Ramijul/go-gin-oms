@@ -26,7 +26,7 @@ func main() {
 	}
 
 	//create/update tables
-	session.AutoMigrate(&models.User{}, &models.Product{}, &models.Order{}, &models.OrderDetails{})
+	session.AutoMigrate(&models.User{}, &models.Product{}, &models.Order{}, &models.OrderItem{})
 
 	//default user
 	user := models.User{Name: "Ramijul Islam", Email: "ramizul127@gmail.com", PhoneNumber: "3654760064"}
