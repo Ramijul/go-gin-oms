@@ -47,7 +47,7 @@ type OrderResponseDao struct {
 	User              RequestedByUser         `json:"user"`
 	Address           address                 `json:"address"`
 	CreatedAt         time.Time               `json:"created_at"`
-	OrderItems        []*OrderItemsResposeDao `json:"order_details,omitempty"`
+	OrderItems        []*OrderItemsResposeDao `json:"order_items,omitempty"`
 }
 
 type ManyOrdersResponseDao struct {

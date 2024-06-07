@@ -8,7 +8,7 @@ import (
 
 const (
 	OrdersTableName     = "orders"
-	OrderItemsTableName = "order_details"
+	OrderItemsTableName = "order_items"
 )
 
 type Repository struct {
