@@ -14,7 +14,7 @@ type address struct {
 }
 
 type RequestedItem struct {
-	ID    string `json:"id" binding:"required",uuid4`
+	ID    string `json:"id" binding:"required,uuid4"`
 	Units int    `json:"units" binding:"required,min=1"`
 }
 
