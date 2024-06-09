@@ -49,6 +49,7 @@
    ```
 
    _In Respone you will receive the newly created order record with a "PAYMENT PENDING" status_
+   _Note_ that placing an order does not (yet) reduce the stock on the product.
 
 4. Fetch the order
 
@@ -62,4 +63,4 @@
    GET localhost:8080/orders
    ```
 
-   _This should show the expected payment status depending on the total order price_
+   _Upon processing the payment the Payment Status should reflect the confirmation_
