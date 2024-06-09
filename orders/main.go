@@ -5,6 +5,8 @@ TODO: add better logging
 */
 
 import (
+	"os"
+
 	"github.com/Ramijul/go-gin-oms/orders/orderPackage"
 	"github.com/Ramijul/go-gin-oms/orders/productPackage"
 	"github.com/Ramijul/go-gin-oms/orders/rabbitmq"
@@ -15,9 +17,13 @@ import (
 )
 
 func init() {
+	// fails when env is passed from docker-compose
 	err := godotenv.Load()
 	if err != nil {
-		panic("Error loading .env file")
+		// test for an env
+		if len(os.Getenv("RABBITMQ_CONN_STRING")) == 0 {
+			panic("Error loading .env file")
+		}
 	}
 
 	rabbitmq.IntiallizeVariables()

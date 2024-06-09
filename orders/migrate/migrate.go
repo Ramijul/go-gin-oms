@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"strings"
 
 	"github.com/Ramijul/go-gin-oms/orders/models"
 	db "github.com/Ramijul/go-gin-oms/orders/utils"
@@ -9,9 +11,14 @@ import (
 )
 
 func init() {
+
+	// fails when env is passed from docker-compose
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		// test for an env
+		if len(os.Getenv("RABBITMQ_CONN_STRING")) == 0 {
+			panic("Error loading .env file")
+		}
 	}
 }
 
@@ -32,6 +39,9 @@ func main() {
 	user := models.User{Name: "Ramijul Islam", Email: "ramizul127@gmail.com", PhoneNumber: "3654760064"}
 	result := session.Create(&user)
 	if result.Error != nil {
+		if strings.Contains(result.Error.Error(), "duplicate key value violates unique constraint") {
+			return
+		}
 		log.Fatal("Unable to create default user", result.Error)
 	}
 
