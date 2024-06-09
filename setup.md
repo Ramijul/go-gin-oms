@@ -1,4 +1,4 @@
-## Running locally with docker-compose
+## Running locally WITH docker-compose
 
 - Ensure you have docker-daemon running
 - Ensure you have docker-compose
@@ -8,11 +8,20 @@
   docker-compose up -- build
   ```
 
+  _Note_ that it could take about 30 seconds for the API service to be active. It wait for all the services it dependents on to be active first!
+
 - To take down all running containers, volumes and images
 
   ```
   docker-compose down -v --rmi all
   ```
+
+## Running locally WITHOUT docker-compose
+
+- Ensure you have postgres and rabbitmq running
+- Generate `.env` files created in the root of `payments` and `orders` modules. Copy the items from their respective `env.example` file
+- On terminal, navigate to `/orders` directory and run `go run ./migrate/migrate.go && go run .`, to get the API service up and running
+- On another terminal, navigate to `/payments` directory and run `go run .`, to get the Payments Service up and consuming messages
 
 ## Testing the Order Management System
 
