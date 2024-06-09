@@ -55,35 +55,7 @@ func (s *Service) HandlePaymentConfirmation(paymentConfirmation rabbitmq.Payment
 /*
 TODO: add transaction
 */
-func (s *Service) Create(requestDao *CreateRequestDao) (ordersDao *OrderResponseDao, err error) {
-	// get the user
-	uid, uerr := uuid.Parse(requestDao.UserID)
-	if uerr != nil {
-		return nil, uerr
-	}
-
-	userData, userErr := s.UserRepository.GetOne(uid)
-	if userErr != nil {
-		return nil, userErr
-	}
-
-	//extract product ids from the request
-	var productIds []uuid.UUID
-	for _, requestedItem := range requestDao.Products {
-		pid, perr := uuid.Parse(requestedItem.ID)
-		if perr != nil {
-			return nil, perr
-		}
-
-		productIds = append(productIds, pid)
-	}
-
-	// get the products from db
-	productsRequested, productsRequestedErr := s.ProductRepository.GetMany(productIds)
-	if productsRequestedErr != nil {
-		return nil, productsRequestedErr
-	}
-
+func (s *Service) Create(requestDao *CreateRequestDao, userData *models.User, productsRequested []*models.Product) (ordersDao *OrderResponseDao, err error) {
 	// generate a map [productID]:models.product
 	productMap := getProductMap(productsRequested)
 

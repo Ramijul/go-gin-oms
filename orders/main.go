@@ -73,13 +73,13 @@ func main() {
 		Session: session,
 	}
 	orderService := &orderPackage.Service{
-		OrderRepository:   orderRepo,
-		ProductRepository: productRepo,
-		UserRepository:    userRepo,
+		OrderRepository: orderRepo,
 	}
 	orderController := orderPackage.Controller{
 		Service:         orderService,
 		RabbitMQService: rabbitMQService,
+		ProductService:  productService,
+		UserService:     userService,
 	}
 
 	// consumer process
