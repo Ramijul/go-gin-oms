@@ -1,6 +1,7 @@
 # dev mode
 services:
   order-service:
+    restart: on-failure
     build: 
       context: ./orders
       dockerfile: ./Dockerfile
@@ -8,6 +9,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    links:
+      - postgres
+      - rabbitmq
     ports:
       - '8080:8080'
     environment:
@@ -16,14 +22,51 @@ services:
       POSTGRES_PASSWORD: abacus123
       POSTGRES_DB: tucows
       POSTGRES_DB_PORT: 5432
+      REQUEST_QUEUE: paymentreq
+      RESPONSE_QUEUE: paymentresp
+      RABBITMQ_CONN_STRING: amqp://guest:guest@rabbitmq:5672/
     networks:
       - tucows-network
-      
+  
+  payments-service:
+    restart: on-failure
+    build: 
+      context: ./payments
+      dockerfile: ./Dockerfile
+    command: go run ./main.go
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    links:
+      - rabbitmq
+    environment:
+      REQUEST_QUEUE: paymentreq
+      RESPONSE_QUEUE: paymentresp
+      RABBITMQ_CONN_STRING: amqp://guest:guest@rabbitmq:5672/
+    networks:
+      - tucows-network
+  
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - rabbitmq-vol:/var/lib/rabbitmq
+    networks:
+      - tucows-network
+
   postgres:
     image: postgres:latest
     restart: always
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: tucows
       POSTGRES_PASSWORD: abacus123
@@ -40,6 +83,7 @@ services:
 
 volumes:
   postgres-vol:
+  rabbitmq-vol:
 
 networks:
   tucows-network:
