@@ -39,15 +39,14 @@ type OrderItemsResposeDao struct {
 }
 
 type OrderResponseDao struct {
-	ID                string                  `json:"id"`
-	TotalPrice        float64                 `json:"total_price"`
-	PaymentReceivedAt time.Time               `json:"payment_received_at"`
-	OrderStatus       string                  `json:"order_status"`
-	PaymentStatus     string                  `json:"payment_status"`
-	User              RequestedByUser         `json:"user"`
-	Address           address                 `json:"address"`
-	CreatedAt         time.Time               `json:"created_at"`
-	OrderItems        []*OrderItemsResposeDao `json:"order_items,omitempty"`
+	ID            string                  `json:"id"`
+	TotalPrice    float64                 `json:"total_price"`
+	OrderStatus   string                  `json:"order_status"`
+	PaymentStatus string                  `json:"payment_status"`
+	User          RequestedByUser         `json:"user"`
+	Address       address                 `json:"address"`
+	CreatedAt     time.Time               `json:"created_at"`
+	OrderItems    []*OrderItemsResposeDao `json:"order_items,omitempty"`
 }
 
 type ManyOrdersResponseDao struct {
@@ -66,11 +65,10 @@ func ToOrderResponseDao(o *models.OrderWithItems) *OrderResponseDao {
 	}
 
 	return &OrderResponseDao{
-		ID:                o.ID.String(),
-		TotalPrice:        o.TotalPrice,
-		PaymentReceivedAt: o.PaymentReceivedAt,
-		OrderStatus:       o.OrderStatus,
-		PaymentStatus:     o.PaymentStatus,
+		ID:            o.ID.String(),
+		TotalPrice:    o.TotalPrice,
+		OrderStatus:   o.OrderStatus,
+		PaymentStatus: o.PaymentStatus,
 		User: RequestedByUser{
 			ID:          o.UserID.String(),
 			Name:        o.UserName,
@@ -87,11 +85,10 @@ func ToManyOrdersResponseDao(o []*models.Order) *ManyOrdersResponseDao {
 	var orders []*OrderResponseDao
 	for _, item := range o {
 		orders = append(orders, &OrderResponseDao{
-			ID:                item.ID.String(),
-			TotalPrice:        item.TotalPrice,
-			PaymentReceivedAt: item.PaymentReceivedAt,
-			OrderStatus:       item.OrderStatus,
-			PaymentStatus:     item.PaymentStatus,
+			ID:            item.ID.String(),
+			TotalPrice:    item.TotalPrice,
+			OrderStatus:   item.OrderStatus,
+			PaymentStatus: item.PaymentStatus,
 			User: RequestedByUser{
 				ID:          item.UserID.String(),
 				Name:        item.UserName,
