@@ -2,6 +2,7 @@ package orderPackage
 
 import (
 	"github.com/Ramijul/go-gin-oms/orders/models"
+	"github.com/Ramijul/go-gin-oms/orders/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -20,6 +21,7 @@ type OrderRepository interface {
 	GetOne(id uuid.UUID) (order *models.OrderWithItems, err error)
 	CreateOrder(order *models.Order) (id uuid.UUID, err error)
 	CreateOrderItems(orderItems []*models.OrderItem) (success bool, err error)
+	UpdateStatus(id uuid.UUID, paymentStatus utils.PAYMENT_STATUS, orderStatus utils.ORDER_STATUS) error
 }
 
 func (r *Repository) GetAll() (orders []*models.Order, err error) {
@@ -59,7 +61,26 @@ func (r *Repository) GetOne(id uuid.UUID) (orderWithDetails *models.OrderWithIte
 
 	// aggregate resutls into one object
 	return createOrderWithDetails(&order, orderItems), nil
+}
 
+func (r *Repository) UpdateStatus(id uuid.UUID, paymentStatus utils.PAYMENT_STATUS, orderStatus utils.ORDER_STATUS) error {
+	runner := r.Session.Table(OrdersTableName)
+
+	order := &models.Order{}
+	if len(paymentStatus) > 0 {
+		order.PaymentStatus = string(paymentStatus)
+	}
+	if len(orderStatus) > 0 {
+		order.OrderStatus = string(orderStatus)
+	}
+
+	result := runner.Where("id = ?", id).Updates(order)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
 func (r *Repository) CreateOrder(order *models.Order) (id uuid.UUID, err error) {

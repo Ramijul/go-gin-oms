@@ -1,11 +1,14 @@
 package orderPackage
 
 import (
+	"errors"
 	"math"
 
 	"github.com/Ramijul/go-gin-oms/orders/models"
 	product "github.com/Ramijul/go-gin-oms/orders/productPackage"
+	"github.com/Ramijul/go-gin-oms/orders/rabbitmq"
 	user "github.com/Ramijul/go-gin-oms/orders/userPackage"
+	"github.com/Ramijul/go-gin-oms/orders/utils"
 	"github.com/google/uuid"
 )
 
@@ -31,6 +34,22 @@ func (s *Service) GetOne(id uuid.UUID) (ordersDao *OrderResponseDao, err error) 
 	}
 
 	return ToOrderResponseDao(orderWithDetails), nil
+}
+
+func (s *Service) HandlePaymentConfirmation(paymentConfirmation rabbitmq.PaymentProcessEvent) error {
+	if paymentConfirmation.PaymentStatus != string(utils.PAYMENT_STATUS_FAILED) && paymentConfirmation.PaymentStatus != string(utils.PAYMENT_STATUS_PAID) {
+		return errors.New("unknown payment status detected")
+	}
+	orderId, err := uuid.Parse(paymentConfirmation.OrderID)
+	if err != nil {
+		return err
+	}
+
+	return s.OrderRepository.UpdateStatus(
+		orderId,
+		utils.PAYMENT_STATUS(paymentConfirmation.PaymentStatus),
+		getOrderStatusBasedOnPayment(utils.PAYMENT_STATUS(paymentConfirmation.PaymentStatus)),
+	)
 }
 
 /*
@@ -69,10 +88,11 @@ func (s *Service) Create(requestDao *CreateRequestDao) (ordersDao *OrderResponse
 	productMap := getProductMap(productsRequested)
 
 	// CREATE ORDER
+	totalPrice := getTotalOrderPrice(productMap, requestDao.Products)
 	order := &models.Order{
-		TotalPrice:      getTotalOrderPrice(productMap, requestDao.Products), //inject calculated total price
-		OrderStatus:     "PAYMENT_PENDING",                                   // PAYMENT_PENDING, PROCESSING
-		PaymentStatus:   "PENDING",                                           // PENDING, PAID, or FAILED
+		TotalPrice:      totalPrice, //inject calculated total price
+		OrderStatus:     string(utils.ORDER_STATUS_PAYMENT_PENDING),
+		PaymentStatus:   string(utils.PAYMENT_STATUS_PENDING),
 		UserID:          userData.ID,
 		UserName:        userData.Name,
 		UserEmail:       userData.Email,
@@ -105,6 +125,15 @@ func (s *Service) Create(requestDao *CreateRequestDao) (ordersDao *OrderResponse
 	}
 
 	return s.GetOne(orderId)
+}
+
+func getOrderStatusBasedOnPayment(paymentStatus utils.PAYMENT_STATUS) utils.ORDER_STATUS {
+	switch paymentStatus {
+	case utils.PAYMENT_STATUS_PAID:
+		return utils.ORDER_STATUS_PROCESSING
+	default:
+		return utils.ORDER_STATUS_PAYMENT_PENDING
+	}
 }
 
 func getProductMap(products []*models.Product) map[string]models.Product {

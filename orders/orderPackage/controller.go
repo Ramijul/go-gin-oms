@@ -1,12 +1,16 @@
 package orderPackage
 
 import (
+	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
+	"github.com/Ramijul/go-gin-oms/orders/rabbitmq"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type orderService interface {
@@ -15,8 +19,13 @@ type orderService interface {
 	Create(requestDao *CreateRequestDao) (ordersDao *OrderResponseDao, err error)
 }
 
+type rabbitMQService interface {
+	SendMessage(message amqp.Publishing) error
+}
+
 type Controller struct {
-	Service orderService
+	Service         orderService
+	RabbitMQService rabbitMQService
 }
 
 func (c *Controller) GetAll(ctx *gin.Context) {
@@ -79,7 +88,36 @@ func (c *Controller) Create(ctx *gin.Context) {
 		return
 	}
 
+	go sendPaymentRequest(order, c.RabbitMQService)
+
 	ctx.JSON(http.StatusOK, order)
+}
+
+func sendPaymentRequest(order *OrderResponseDao, rabbitMQService rabbitMQService) {
+	// message body
+	orderCreateEvent, err := json.Marshal(&rabbitmq.OrderCreateEvent{
+		OrderID:    order.ID,
+		TotalPrice: order.TotalPrice,
+	})
+
+	if err != nil {
+		log.Print("Failed to Marshall OrderCreateEvent", err)
+		return
+	}
+
+	// send message
+	err = rabbitMQService.SendMessage(amqp.Publishing{
+		ContentType: "application/json",
+		Body:        orderCreateEvent,
+	})
+
+	if err != nil {
+		log.Print("Failed to Send Message to Payments Service", err)
+		return
+	}
+
+	log.Print("Payment request sent ", orderCreateEvent)
+
 }
 
 /*
