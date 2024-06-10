@@ -76,7 +76,7 @@ func main() {
 		OrderRepository: orderRepo,
 	}
 	orderController := orderPackage.Controller{
-		Service:         orderService,
+		OrderService:    orderService,
 		RabbitMQService: rabbitMQService,
 		ProductService:  productService,
 		UserService:     userService,

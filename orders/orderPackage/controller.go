@@ -35,14 +35,14 @@ type userService interface {
 }
 
 type Controller struct {
-	Service         orderService
+	OrderService    orderService
 	RabbitMQService rabbitMQService
 	ProductService  productService
 	UserService     userService
 }
 
 func (c *Controller) GetAll(ctx *gin.Context) {
-	orders, err := c.Service.GetAll()
+	orders, err := c.OrderService.GetAll()
 
 	if err != nil {
 		ctx.AbortWithStatus(http.StatusInternalServerError)
@@ -66,7 +66,7 @@ func (c *Controller) GetOne(ctx *gin.Context) {
 		return
 	}
 
-	order, orderFetchErr := c.Service.GetOne(id)
+	order, orderFetchErr := c.OrderService.GetOne(id)
 	if orderFetchErr != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
@@ -109,7 +109,7 @@ func (c *Controller) Create(ctx *gin.Context) {
 		return
 	}
 
-	order, err := c.Service.Create(&createReqDao, userData, productsRequested)
+	order, err := c.OrderService.Create(&createReqDao, userData, productsRequested)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, "Invalid input")
 		return
