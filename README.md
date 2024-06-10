@@ -7,6 +7,6 @@ Simple Order Management System adhering to microservices architecture, using [go
 - Unit test
 - Integration test
 - Reducing product in stock upon receiving an order
-- validate order create request to ensure there is even products in stock to fulfill the order
+- Validate order create request to ensure there is enough products in stock to fulfill the order
 - Code clean up: find a better way to handle dependency injections
-- Look for performance bottle necks
+- Look for performance bottlenecks
