@@ -31,7 +31,7 @@
    GET localhost:8080/users
    ```
 
-   _This will list all the users. You will find only one for now._
+   _This will list all the users. You will find only one user in the list for now._
 
 2. Grab the ProductID from
 
@@ -57,7 +57,10 @@
    }
    ```
 
-   _In Respone you will receive the newly created order record with a "PAYMENT PENDING" status_
+   _In Respone you will receive the newly created order record with a "PAYMENT PENDING" status_.
+
+   > Total Price of the order is calculated based on the `products[].units` provided. The Payments processor uses this calculated total price to process the payment. Create an order with a higher value for `products[].units` (e.g 150), to test for the payment failure case.
+
    _Note_ that placing an order does not (yet) reduce the stock on the product.
 
 4. Fetch the order
@@ -72,4 +75,4 @@
    GET localhost:8080/orders
    ```
 
-   _Upon processing the payment the Payment Status should reflect the confirmation_
+   _Upon processing the payment the Payment Status should reflect the confirmation._
